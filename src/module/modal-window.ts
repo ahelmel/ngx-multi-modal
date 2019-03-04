@@ -10,7 +10,8 @@ import {
   OnDestroy, HostBinding
 } from '@angular/core';
 
-import {ModalDismissReasons} from './modal-dismiss-reasons';
+import { ModalDismissReasons } from './modal-dismiss-reasons';
+import { NgxModalStack } from './modal-stack';
 
 @Component({
   selector: 'ngx-multi-modal-window',
@@ -42,7 +43,11 @@ export class NgxModalWindow implements OnInit, // tslint:disable-line
 
   @Output('dismiss') dismissEvent = new EventEmitter(); // tslint:disable-line
 
-  constructor(private _elRef: ElementRef, private _renderer: Renderer2) {}
+  constructor(
+    private _elRef: ElementRef,
+    private _renderer: Renderer2,
+    private modalService: NgxModalStack,
+  ) {}
 
   backdropClick($event: any): void {
     if (this.dismissOnBackdropClick && this.backdrop === true && this._elRef.nativeElement === $event.target) {
@@ -82,6 +87,9 @@ export class NgxModalWindow implements OnInit, // tslint:disable-line
     elementToFocus['focus'].apply(elementToFocus, []);
 
     this._elWithFocus = null;
-    this._renderer.removeClass(body, 'modal-open');
+    const hasNoOpenedModals = (this.modalService.count - 1) < 1;
+    if (hasNoOpenedModals) {
+      this._renderer.removeClass(body, 'modal-open');
+    }
   }
 }
